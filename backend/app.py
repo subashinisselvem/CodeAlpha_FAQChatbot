@@ -123,21 +123,20 @@ User question:
 {user_question}
 """
 
-        response = client.models.generate_content(
-           model="gemini-3.8-flash",
-            contents=prompt
+        chat = client.chats.create(
+            model="gemini-3.8-flash"
+        )
+
+        response = chat.send_message(
+            prompt
         )
 
         return response.text
 
     except Exception as error:
 
-        print("Gemini error:", error)
-
-        return (
-            "Sorry, I couldn't get a response from the general AI "
-            "right now. Please try again."
-        )
+        print("Gemini error:", repr(error))
+        raise
 
 
 # ========================================
@@ -164,6 +163,7 @@ def find_answer(user_question):
         round(float(best_score), 3)
     )
 
+
     # ========================================
     # FAQ MATCH
     # ========================================
@@ -178,6 +178,7 @@ def find_answer(user_question):
                 3
             )
         }
+
 
     # ========================================
     # GENERAL AI
@@ -204,6 +205,11 @@ def find_answer(user_question):
 # ========================================
 
 class ChatbotHandler(BaseHTTPRequestHandler):
+
+
+    # ========================================
+    # SEND JSON RESPONSE
+    # ========================================
 
     def send_json(
         self,
@@ -306,6 +312,7 @@ class ChatbotHandler(BaseHTTPRequestHandler):
 
             return
 
+
         try:
 
             content_length = int(
@@ -328,6 +335,11 @@ class ChatbotHandler(BaseHTTPRequestHandler):
                 ""
             ).strip()
 
+
+            # ========================================
+            # CHECK QUESTION
+            # ========================================
+
             if not question:
 
                 self.send_json(
@@ -340,14 +352,21 @@ class ChatbotHandler(BaseHTTPRequestHandler):
 
                 return
 
+
+            # ========================================
+            # GET ANSWER
+            # ========================================
+
             result = find_answer(
                 question
             )
+
 
             self.send_json(
                 200,
                 result
             )
+
 
         except Exception as error:
 
