@@ -123,10 +123,7 @@ User question:
 {user_question}
 """
 
-        chat = client.chats.create(
-            model="gemini-3.8-flash"
-        )
-
+        chat = client.chats.create(model="gemini-2.5-flash")
         response = chat.send_message(
             prompt
         )
